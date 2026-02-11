@@ -49,10 +49,10 @@ echo  ✅ Dosyalar kopyalandi.
 
 :: ===== BAĞIMLILIKLAR =====
 echo  [4/5] Python kutuphaneleri yukleniyor (bu biraz surabilir)...
-pip install -q pywebview pdfplumber Flask >nul 2>&1
+pip install -q -r "%INSTALL_DIR%\requirements.txt" >nul 2>&1
 if %errorlevel% neq 0 (
     echo  ⚠️ Kutuphane yukleme hatasi. Manuel olarak deneyin:
-    echo     pip install pywebview pdfplumber Flask
+    echo     pip install -r requirements.txt
     pause
     exit /b 1
 )
