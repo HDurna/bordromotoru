@@ -1,0 +1,39 @@
+{
+    "year": 2026,
+    "min_wage_gross": 33030.00,
+    "stamp_rate": 0.00759,
+    "sgk_ceiling_monthly": 247725.00,
+    "rates": {
+        "normal_4a": {
+            "sgk_employee": 0.14,
+            "unemployment_employee": 0.01
+        },
+        "emekli_sgdp": {
+            "sgdp_employee": 0.075,
+            "unemployment_employee": 0.0
+        }
+    },
+    "income_tax_tariff": [
+        {
+            "up_to": 190000,
+            "rate": 0.15
+        },
+        {
+            "up_to": 400000,
+            "rate": 0.20
+        },
+        {
+            "up_to": 1500000,
+            "rate": 0.27
+        },
+        {
+            "up_to": 5300000,
+            "rate": 0.35
+        },
+        {
+            "up_to": null,
+            "rate": 0.40
+        }
+    ],
+    "notes": "2026 yılı resmi ücret geliri dilimleri. SGK tavanı = Brüt Asgari Ücret x 7.5. Ücretlilere özel 3. dilim üst sınırı 1.500.000 TL (ücret dışı gelirler için farklıdır). Damga vergisi oranı binde 7,59."
+}

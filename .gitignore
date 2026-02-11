@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.spec
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Gemini / Agent
+.gemini/
+.temp_ag_kit/
+.agent/
+
+# Kişisel / Test Dosyaları
+docs/bordro.pdf
+docs/bordro_raw.txt
+docs/test_output.txt
+
+# Build Çıktıları
+*.exe
+*.msi
+installer/Output/

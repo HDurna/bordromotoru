@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Türk Bordro Motoru 2026</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a',
+                        secondary: '#334155',
+                        accent: '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-primary text-white py-4 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-calculator text-2xl text-accent"></i>
+                <h1 class="text-xl font-bold tracking-tight">Bordro<span class="text-accent font-light">Motoru</span> 2026</h1>
+            </div>
+            <div class="text-xs text-gray-400 font-mono hidden md:block">v1.0.0 (MVP)</div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-6xl">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Panel: Input -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="glass-card rounded-2xl p-6 transition-all hover:shadow-xl">
+                    <h2 class="text-lg font-semibold mb-4 text-primary border-b pb-2"><i class="fa-solid fa-sliders mr-2"></i>Hesaplama Parametreleri</h2>
+                    
+                    <form id="calcForm" class="space-y-4">
+                        <!-- Mode Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Hesaplama Yönü</label>
+                            <div class="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-lg">
+                                <button type="button" class="mode-btn py-2 px-4 rounded-md text-sm font-medium transition-colors bg-white shadow-sm text-primary" data-mode="gross_to_net">
+                                    Brütten Nete
+                                </button>
+                                <button type="button" class="mode-btn py-2 px-4 rounded-md text-sm font-medium transition-colors text-gray-500 hover:bg-gray-50" data-mode="net_to_gross">
+                                    Netten Brüte
+                                </button>
+                            </div>
+                            <input type="hidden" id="mode" name="mode" value="gross_to_net">
+                        </div>
+
+                        <!-- Amount Input -->
+                        <div>
+                            <label id="amountLabel" class="block text-sm font-medium text-gray-600 mb-1">Brüt Tutar (TL)</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-400">₺</span>
+                                </div>
+                                <input type="number" step="0.01" id="amount" name="amount" required
+                                    class="block w-full pl-8 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-lg font-semibold bg-white transition-shadow"
+                                    placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <!-- Cum Base Input -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Kümülatif GV Matrahı (Opsiyonel)</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-400">₺</span>
+                                </div>
+                                <input type="number" step="0.01" id="cum_base" name="cum_base" value="0"
+                                    class="block w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-sm"
+                                    placeholder="0">
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1">Önceki aylardan gelen matrah toplamı.</p>
+                        </div>
+
+                        <!-- Employee Type -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">Çalışan Tipi</label>
+                            <select id="employee_type" name="employee_type" class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-sm">
+                                <option value="normal_4a">Normal Sigortalı (4a)</option>
+                                <option value="emekli_sgdp">Emekli (SGDP)</option>
+                            </select>
+                        </div>
+
+                        <!-- Action Button -->
+                        <button type="submit" class="w-full bg-primary hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 active:translate-y-0">
+                            <i class="fa-solid fa-bolt mr-2 text-yellow-400"></i>HESAPLA
+                        </button>
+                    </form>
+                </div>
+
+                 <!-- Info Card -->
+                 <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
+                    <div class="flex items-start">
+                        <i class="fa-solid fa-circle-info mt-1 mr-2 text-blue-500"></i>
+                        <p>2026 yılı tahmini verileri (Asgari Ücret, Vergi Dilimleri) kullanılmaktadır. Resmi işlemler için kontrol ediniz.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Result -->
+            <div class="lg:col-span-8 space-y-6 hidden" id="resultPanel">
+                
+                <!-- Highlights Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Net Card -->
+                    <div class="glass-card p-6 rounded-2xl border-l-4 border-emerald-500 relative overflow-hidden group">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-emerald-100 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                        <div class="relative z-10">
+                            <p class="text-sm font-medium text-gray-500 uppercase">Net Maaş</p>
+                            <h3 class="text-3xl font-bold text-gray-900 mt-1" id="res_net">0.00 ₺</h3>
+                            <p class="text-xs text-emerald-600 mt-2 font-medium"><i class="fa-solid fa-check mr-1"></i>Ödenecek Tutar</p>
+                        </div>
+                    </div>
+
+                    <!-- Gross Card -->
+                    <div class="glass-card p-6 rounded-2xl border-l-4 border-indigo-500 relative overflow-hidden group">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-indigo-100 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                        <div class="relative z-10">
+                            <p class="text-sm font-medium text-gray-500 uppercase">Brüt Maaş</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1" id="res_gross">0.00 ₺</h3>
+                            <p class="text-xs text-gray-500 mt-2">Toplam Hakediş</p>
+                        </div>
+                    </div>
+
+                    <!-- Tax Card -->
+                    <div class="glass-card p-6 rounded-2xl border-l-4 border-rose-500 relative overflow-hidden group">
+                        <div class="absolute -right-6 -top-6 w-24 h-24 bg-rose-100 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
+                        <div class="relative z-10">
+                            <p class="text-sm font-medium text-gray-500 uppercase">Toplam Kesinti</p>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1" id="res_deduction">0.00 ₺</h3>
+                            <p class="text-xs text-rose-600 mt-2 font-medium" id="res_deduction_rate">%0 Oran</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detail Table & Chart -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Table -->
+                    <div class="glass-card rounded-2xl p-6 overflow-hidden">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Hesap Pusulası Detayı</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr class="group hover:bg-gray-50"><td class="py-2 text-gray-500">Brüt Ücret</td><td class="py-2 text-right font-medium text-gray-900" id="tbl_gross"></td></tr>
+                                    <tr class="group hover:bg-gray-50"><td class="py-2 text-gray-500">SGK Matrahı (PEK)</td><td class="py-2 text-right font-mono" id="tbl_pek"></td></tr>
+                                    <tr class="bg-red-50/50 group hover:bg-red-50"><td class="py-2 text-rose-700 pl-2 border-l-2 border-rose-300">SGK İşçi Payı</td><td class="py-2 text-right font-medium text-rose-700" id="tbl_sgk"></td></tr>
+                                    <tr class="bg-red-50/50 group hover:bg-red-50"><td class="py-2 text-rose-700 pl-2 border-l-2 border-rose-300">İşsizlik İşçi Payı</td><td class="py-2 text-right font-medium text-rose-700" id="tbl_unemp"></td></tr>
+                                    <tr class="group hover:bg-gray-50"><td class="py-2 text-gray-500">Gelir Vergisi Matrahı</td><td class="py-2 text-right font-mono" id="tbl_gv_base"></td></tr>
+                                    <tr class="group hover:bg-gray-50"><td class="py-2 text-gray-500">Kümülatif Matrah</td><td class="py-2 text-right text-gray-400 italic" id="tbl_cum_base"></td></tr>
+                                    <tr class="bg-orange-50/50 group hover:bg-orange-50"><td class="py-2 text-orange-700 pl-2 border-l-2 border-orange-300">Gelir Vergisi (Hesaplanan)</td><td class="py-2 text-right font-mono" id="tbl_gv_gross"></td></tr>
+                                    <tr class="group hover:bg-green-50"><td class="py-2 text-emerald-600 pl-2"><i class="fa-solid fa-leaf mr-1 text-xs"></i>GV İstisnası (Min. Ücret)</td><td class="py-2 text-right font-medium text-emerald-600" id="tbl_gv_exemption"></td></tr>
+                                    <tr class="bg-red-50/50 group hover:bg-red-50"><td class="py-2 text-rose-700 pl-2 border-l-2 border-red-500 font-bold">Ödenecek Gelir Vergisi</td><td class="py-2 text-right font-bold text-rose-700" id="tbl_gv_net"></td></tr>
+                                    <tr class="bg-orange-50/50 group hover:bg-orange-50"><td class="py-2 text-orange-700 pl-2 border-l-2 border-orange-300">Damga Vergisi (Hesaplanan)</td><td class="py-2 text-right font-mono" id="tbl_dv_gross"></td></tr>
+                                    <tr class="group hover:bg-green-50"><td class="py-2 text-emerald-600 pl-2"><i class="fa-solid fa-leaf mr-1 text-xs"></i>DV İstisnası</td><td class="py-2 text-right font-medium text-emerald-600" id="tbl_dv_exemption"></td></tr>
+                                    <tr class="bg-red-50/50 group hover:bg-red-50"><td class="py-2 text-rose-700 pl-2 border-l-2 border-red-500 font-bold">Ödenecek Damga Vergisi</td><td class="py-2 text-right font-bold text-rose-700" id="tbl_dv_net"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="glass-card rounded-2xl p-6 flex flex-col justify-center items-center">
+                         <h3 class="text-lg font-bold text-gray-800 mb-4 w-full text-left">Maaş Dağılımı</h3>
+                        <div class="w-full h-64 relative">
+                            <canvas id="salaryChart"></canvas>
+                        </div>
+                         <div class="mt-4 text-xs text-gray-400 text-center">
+                            Brüt maaşın ne kadarının eve götürüldüğünü, ne kadarının vergi ve prime gittiğini gösterir.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Empty State -->
+             <div class="lg:col-span-8 flex items-center justify-center p-12 text-center" id="emptyState">
+                <div class="text-gray-300">
+                    <i class="fa-solid fa-coins text-6xl mb-4 text-gray-200"></i>
+                    <h3 class="text-xl font-medium text-gray-400">Sonuçları görmek için hesaplama yapın</h3>
+                    <p class="text-sm mt-2">Soldaki formu doldurup "Hesapla" butonuna basın.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-100 py-6 mt-8">
+        <div class="container mx-auto px-4 text-center text-gray-400 text-sm">
+            &copy; 2026 Bordro Motoru MVP. Designed with <i class="fa-solid fa-heart text-red-300 mx-1"></i> & Tailwind CSS.
+        </div>
+    </footer>
+
+    <!-- Script -->
+    <script src="/static/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bordro Motoru 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { 900: '#111113', 800: '#1a1a1f', 700: '#222228', 600: '#2a2a32', 500: '#33333d' },
+                        lime: { 400: '#a3e635', 500: '#84cc16', 600: '#65a30d' },
+                        ash: { 400: '#9ca3af', 500: '#6b7280', 600: '#4b5563', 700: '#374151', 800: '#1f2937' }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #111113;
+            color: #d1d5db;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #33333d;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+
+        .card {
+            background: #1a1a1f;
+            border: 1px solid #2a2a32;
+            border-radius: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .card:hover {
+            border-color: #33333d;
+        }
+
+        .card-accent {
+            background: linear-gradient(135deg, #1a1a1f 0%, #1f2418 100%);
+            border: 1px solid rgba(163, 230, 53, 0.1);
+        }
+
+        .glow-lime {
+            box-shadow: 0 0 30px rgba(163, 230, 53, 0.06);
+        }
+
+        .glow-lime-strong {
+            box-shadow: 0 0 40px rgba(163, 230, 53, 0.12);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0
+            }
+
+            100% {
+                background-position: 200% 0
+            }
+        }
+
+        .anim-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .input-field {
+            background: #111113;
+            border: 1px solid #2a2a32;
+            color: #e5e7eb;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            border-color: #a3e635;
+            box-shadow: 0 0 0 3px rgba(163, 230, 53, 0.08);
+            outline: none;
+        }
+
+        .input-field::placeholder {
+            color: #4b5563;
+        }
+
+        .select-field {
+            background: #111113;
+            border: 1px solid #2a2a32;
+            color: #e5e7eb;
+        }
+
+        .select-field option {
+            background: #1a1a1f;
+            color: #e5e7eb;
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, #84cc16, #65a30d);
+            color: #111113;
+            font-weight: 700;
+            transition: all 0.25s;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(132, 204, 22, 0.25);
+        }
+
+        .btn-main:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #222228;
+            border: 1px solid #33333d;
+            color: #9ca3af;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: #a3e635;
+            color: #a3e635;
+        }
+
+        .tab {
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab:hover {
+            color: #a3e635;
+        }
+
+        .tab.active {
+            color: #a3e635;
+            border-color: #a3e635;
+        }
+
+        .annual-table th {
+            background: #222228;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        .annual-table td {
+            border-bottom: 1px solid #1f1f25;
+        }
+
+        .annual-table tr:hover td {
+            background: rgba(163, 230, 53, 0.03);
+        }
+
+        .param-input {
+            background: #111113;
+            border: 1px solid #2a2a32;
+            color: #e5e7eb;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .param-input:focus {
+            border-color: #a3e635;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(163, 230, 53, 0.08);
+        }
+
+        .badge-lime {
+            background: rgba(163, 230, 53, 0.1);
+            color: #a3e635;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 px-6 py-3 flex items-center justify-between border-b border-dark-600"
+        style="background:rgba(17,17,19,0.92);backdrop-filter:blur(12px);">
+        <div class="flex items-center gap-3">
+            <div
+                class="w-8 h-8 rounded-lg bg-gradient-to-br from-lime-400 to-lime-600 flex items-center justify-center">
+                <i class="fa-solid fa-calculator text-dark-900 text-sm"></i>
+            </div>
+            <div>
+                <h1 class="text-base font-bold text-white tracking-tight">Bordro<span
+                        class="text-lime-400 font-light">Motoru</span></h1>
+                <p class="text-[10px] text-ash-500 -mt-0.5 font-mono">2026 • Türkiye Maaş Hesaplama</p>
+            </div>
+        </div>
+        <!-- Tabs -->
+        <nav class="flex items-center gap-6 text-sm font-medium">
+            <button class="tab active" data-tab="calc" onclick="switchTab('calc')"><i
+                    class="fa-solid fa-calculator mr-1.5 text-xs"></i>Hesaplama</button>
+            <button class="tab" data-tab="annual" onclick="switchTab('annual')"><i
+                    class="fa-solid fa-table mr-1.5 text-xs"></i>12 Aylık</button>
+            <button class="tab" data-tab="params" onclick="switchTab('params')"><i
+                    class="fa-solid fa-gear mr-1.5 text-xs"></i>Parametreler</button>
+            <button class="tab" data-tab="analyze" onclick="switchTab('analyze')"><i
+                    class="fa-solid fa-magnifying-glass-chart mr-1.5 text-xs"></i>Bordro Analiz</button>
+            <button class="tab" data-tab="dev" onclick="switchTab('dev')"><i
+                    class="fa-solid fa-code mr-1.5 text-xs"></i>Geliştirici</button>
+        </nav>
+        <div class="flex items-center gap-3">
+            <span id="headerInfo" class="text-[11px] text-ash-500 font-mono hidden md:block"></span>
+            <div class="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></div>
+        </div>
+    </header>
+
+    <!-- ===================== TAB 1: HESAPLAMA ===================== -->
+    <section id="tab-calc" class="p-6 max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Sol: Girdiler -->
+            <div class="lg:col-span-4 space-y-5 anim-in">
+                <div class="card-accent rounded-2xl p-6 glow-lime">
+                    <h2 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-lime-400 text-xs"></i>Hesaplama Parametreleri
+                    </h2>
+
+                    <!-- Mod -->
+                    <div class="mb-5">
+                        <label
+                            class="text-[11px] font-semibold text-ash-500 uppercase tracking-widest mb-2 block">Yön</label>
+                        <div class="bg-dark-900 rounded-xl p-1 flex gap-1 border border-dark-600">
+                            <button
+                                class="mode-btn flex-1 py-2.5 rounded-lg text-sm font-semibold text-center bg-gradient-to-r from-lime-500 to-lime-600 text-dark-900"
+                                data-mode="gross_to_net" onclick="setMode(this)">
+                                <i class="fa-solid fa-arrow-down mr-1 text-xs"></i>Brütten Nete
+                            </button>
+                            <button
+                                class="mode-btn flex-1 py-2.5 rounded-lg text-sm font-semibold text-center text-ash-500"
+                                data-mode="net_to_gross" onclick="setMode(this)">
+                                <i class="fa-solid fa-arrow-up mr-1 text-xs"></i>Netten Brüte
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tutar -->
+                    <div class="mb-4">
+                        <label id="amountLabel"
+                            class="text-[11px] font-semibold text-ash-500 uppercase tracking-widest mb-1.5 block">Brüt
+                            Tutar (TL)</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ash-600 font-semibold">₺</span>
+                            <input type="number" step="0.01" id="amount"
+                                class="input-field w-full pl-8 pr-4 py-3 rounded-xl text-xl font-bold"
+                                placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <!-- Kümülatif -->
+                    <div class="mb-4">
+                        <label
+                            class="text-[11px] font-semibold text-ash-500 uppercase tracking-widest mb-1.5 block">Kümülatif
+                            GV Matrahı</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-ash-600">₺</span>
+                            <input type="number" step="0.01" id="cum_base" value="0"
+                                class="input-field w-full pl-8 pr-4 py-2.5 rounded-xl text-sm" placeholder="0">
+                        </div>
+                        <p class="text-[10px] text-ash-600 mt-1">Önceki aylardan gelen matrah toplamı</p>
+                    </div>
+
+                    <!-- Çalışan Tipi -->
+                    <div class="mb-5">
+                        <label
+                            class="text-[11px] font-semibold text-ash-500 uppercase tracking-widest mb-1.5 block">Çalışan
+                            Tipi</label>
+                        <select id="employee_type" class="select-field w-full py-2.5 px-3 rounded-xl text-sm">
+                            <option value="normal_4a">Normal Sigortalı (4a)</option>
+                            <option value="emekli_sgdp">Emekli (SGDP)</option>
+                        </select>
+                    </div>
+
+                    <button id="calcBtn" onclick="doCalculate()"
+                        class="btn-main w-full py-3.5 rounded-xl text-base shadow-lg cursor-pointer">
+                        <i class="fa-solid fa-bolt mr-2"></i>HESAPLA
+                    </button>
+                </div>
+
+                <div class="card rounded-xl p-4 text-xs text-ash-500 flex items-start gap-2">
+                    <i class="fa-solid fa-circle-info text-lime-500 mt-0.5"></i>
+                    <p>2026 yılı verileri kullanılmaktadır. Resmi işlemler için GİB/SGK kaynaklarını doğrulayınız.</p>
+                </div>
+            </div>
+
+            <!-- Sağ: Sonuçlar -->
+            <div class="lg:col-span-8 space-y-5" id="resultPanel" style="display:none;">
+
+                <!-- Özet Kartları -->
+                <div class="grid grid-cols-3 gap-4 anim-in">
+                    <div class="card p-5 border-l-4 border-lime-400 glow-lime relative overflow-hidden group">
+                        <div
+                            class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-lime-500/5 group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <p class="text-[10px] font-bold text-ash-500 uppercase tracking-widest">Net Maaş</p>
+                        <h3 class="text-2xl font-extrabold text-lime-400 mt-1" id="res_net">0,00 ₺</h3>
+                        <p class="text-[10px] text-lime-500/60 mt-1"><i class="fa-solid fa-wallet mr-1"></i>Ele Geçen
+                        </p>
+                    </div>
+                    <div class="card p-5 border-l-4 border-ash-500 relative overflow-hidden group">
+                        <div
+                            class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-white/[0.02] group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <p class="text-[10px] font-bold text-ash-500 uppercase tracking-widest">Brüt Maaş</p>
+                        <h3 class="text-xl font-bold text-white mt-1" id="res_gross">0,00 ₺</h3>
+                        <p class="text-[10px] text-ash-600 mt-1">Toplam Hakediş</p>
+                    </div>
+                    <div class="card p-5 border-l-4 border-red-500 relative overflow-hidden group">
+                        <div
+                            class="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-red-500/5 group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        <p class="text-[10px] font-bold text-ash-500 uppercase tracking-widest">Toplam Kesinti</p>
+                        <h3 class="text-xl font-bold text-red-400 mt-1" id="res_deduction">0,00 ₺</h3>
+                        <p class="text-[10px] text-red-400/60 mt-1" id="res_deduction_rate">%0</p>
+                    </div>
+                </div>
+
+                <!-- Tablo & Grafik -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 anim-in">
+                    <div class="card p-5">
+                        <h3 class="text-sm font-bold text-white mb-3"><i
+                                class="fa-solid fa-receipt text-lime-400 text-xs mr-2"></i>Hesap Pusulası</h3>
+                        <div id="detailTable" class="space-y-0 text-xs"></div>
+                    </div>
+                    <div class="card p-5 flex flex-col">
+                        <h3 class="text-sm font-bold text-white mb-3"><i
+                                class="fa-solid fa-chart-pie text-lime-400 text-xs mr-2"></i>Maaş Dağılımı</h3>
+                        <div class="flex-grow relative" style="min-height:220px"><canvas id="salaryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boş Durum -->
+            <div class="lg:col-span-8 flex items-center justify-center p-16" id="emptyState">
+                <div class="text-center space-y-3">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-dark-700 flex items-center justify-center mx-auto border border-dark-600">
+                        <i class="fa-solid fa-coins text-2xl text-ash-600"></i>
+                    </div>
+                    <h3 class="text-base font-medium text-ash-500">Sonuçları görmek için hesaplama yapın</h3>
+                    <p class="text-sm text-ash-600">Soldaki formu doldurup "Hesapla" butonuna basın.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== TAB 2: 12 AYLIK ===================== -->
+    <section id="tab-annual" class="p-6 max-w-7xl mx-auto hidden">
+        <div class="card p-6 anim-in">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-sm font-bold text-white"><i
+                        class="fa-solid fa-calendar-days text-lime-400 mr-2 text-xs"></i>12 Aylık Bordro Tablosu</h2>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <label class="text-[11px] text-ash-500">Brüt:</label>
+                        <input type="number" id="annualGross" class="input-field py-1.5 px-3 rounded-lg text-sm w-36"
+                            placeholder="Brüt Tutar">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-[11px] text-ash-500">Tip:</label>
+                        <select id="annualType" class="select-field py-1.5 px-2 rounded-lg text-xs">
+                            <option value="normal_4a">Normal (4a)</option>
+                            <option value="emekli_sgdp">Emekli (SGDP)</option>
+                        </select>
+                    </div>
+                    <button onclick="doAnnualCalc()" class="btn-main py-2 px-5 rounded-lg text-sm cursor-pointer"><i
+                            class="fa-solid fa-table-cells mr-1.5"></i>Hesapla</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto rounded-xl border border-dark-600" style="max-height:520px;overflow-y:auto;">
+                <table class="annual-table w-full text-xs">
+                    <thead>
+                        <tr class="text-ash-400 text-[11px] uppercase tracking-wider">
+                            <th class="py-3 px-3 text-left font-semibold border-b border-dark-600">Ay</th>
+                            <th class="py-3 px-3 text-right font-semibold border-b border-dark-600">Brüt</th>
+                            <th class="py-3 px-3 text-right font-semibold border-b border-dark-600">SGK</th>
+                            <th class="py-3 px-3 text-right font-semibold border-b border-dark-600">İşsizlik</th>
+                            <th class="py-3 px-3 text-right font-semibold border-b border-dark-600">GV Matrah</th>
+                            <th class="py-3 px-3 text-right font-semibold border-b border-dark-600">Küm. Matrah</th>
+                            <th class="py-3 px-3 text-right font-semibold border-b border-dark-600">GV Brüt</th>
+                            <th class="py-3 px-3 text-right font-semibold border-b border-dark-600">GV İst.</th>
+                            <th class="py-3 px-3 text-right font-semibold border-b border-dark-600">GV Net</th>
+                            <th class="py-3 px-3 text-right font-semibold border-b border-dark-600">DV Net</th>
+                            <th class="py-3 px-3 text-right font-semibold border-b border-dark-600 text-lime-400">Net
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="annualBody"></tbody>
+                    <tfoot id="annualFoot" class="font-bold text-white border-t-2 border-lime-500/30"></tfoot>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== TAB 3: PARAMETRELER ===================== -->
+    <section id="tab-params" class="p-6 max-w-4xl mx-auto hidden">
+        <div class="card p-6 anim-in">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-sm font-bold text-white"><i
+                        class="fa-solid fa-gear text-lime-400 mr-2 text-xs"></i>Parametre Yönetimi</h2>
+                <span class="badge-lime">Yarı-Otomatik Güncelleme</span>
+            </div>
+            <p class="text-xs text-ash-500 mb-5">Aşağıdaki parametreleri doğrudan düzenleyip kaydedebilirsiniz.
+                Değişiklikler hemen hesaplamalara yansır.</p>
+
+            <div id="paramsForm" class="space-y-5">
+                <!-- Temel Parametreler -->
+                <div>
+                    <h3
+                        class="text-xs font-bold text-ash-400 uppercase tracking-widest mb-3 border-b border-dark-600 pb-2">
+                        Temel Sabitler</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[11px] text-ash-500 mb-1 block">Brüt Asgari Ücret (TL)</label>
+                            <input type="number" step="0.01" id="p_min_wage" class="param-input">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-ash-500 mb-1 block">SGK Tavan (TL) <span
+                                    class="text-ash-600">(Asgari x 7.5)</span></label>
+                            <input type="number" step="0.01" id="p_sgk_ceiling" class="param-input">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-ash-500 mb-1 block">Damga Vergisi Oranı</label>
+                            <input type="number" step="0.00001" id="p_stamp_rate" class="param-input">
+                        </div>
+                        <div>
+                            <label class="text-[11px] text-ash-500 mb-1 block">Yıl</label>
+                            <input type="number" id="p_year" class="param-input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Oranlar -->
+                <div>
+                    <h3
+                        class="text-xs font-bold text-ash-400 uppercase tracking-widest mb-3 border-b border-dark-600 pb-2">
+                        Çalışan Oranları</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="card p-4">
+                            <p class="text-[11px] font-bold text-ash-400 mb-2">Normal Sigortalı (4a)</p>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2"><label class="text-[10px] text-ash-500 w-32">SGK
+                                        İşçi:</label><input type="number" step="0.001" id="p_4a_sgk"
+                                        class="param-input w-24"></div>
+                                <div class="flex items-center gap-2"><label
+                                        class="text-[10px] text-ash-500 w-32">İşsizlik İşçi:</label><input type="number"
+                                        step="0.001" id="p_4a_unemp" class="param-input w-24"></div>
+                            </div>
+                        </div>
+                        <div class="card p-4">
+                            <p class="text-[11px] font-bold text-ash-400 mb-2">Emekli (SGDP)</p>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2"><label class="text-[10px] text-ash-500 w-32">SGDP
+                                        İşçi:</label><input type="number" step="0.001" id="p_sgdp"
+                                        class="param-input w-24"></div>
+                                <div class="flex items-center gap-2"><label
+                                        class="text-[10px] text-ash-500 w-32">İşsizlik İşçi:</label><input type="number"
+                                        step="0.001" id="p_sgdp_unemp" class="param-input w-24"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gelir Vergisi Dilimleri -->
+                <div>
+                    <h3
+                        class="text-xs font-bold text-ash-400 uppercase tracking-widest mb-3 border-b border-dark-600 pb-2">
+                        Gelir Vergisi Dilimleri (Ücret Geliri)</h3>
+                    <div id="tariffRows" class="space-y-2"></div>
+                </div>
+
+                <!-- Kaydet -->
+                <div class="flex items-center gap-3 pt-2">
+                    <button onclick="saveParams()" class="btn-main py-2.5 px-8 rounded-xl text-sm cursor-pointer"><i
+                            class="fa-solid fa-floppy-disk mr-2"></i>Kaydet</button>
+                    <button onclick="loadParamsToForm()"
+                        class="btn-secondary py-2.5 px-6 rounded-xl text-sm cursor-pointer"><i
+                            class="fa-solid fa-rotate-left mr-2"></i>Sıfırla</button>
+                    <span id="saveStatus" class="text-xs text-lime-400 ml-3 hidden"><i
+                            class="fa-solid fa-check mr-1"></i>Kaydedildi!</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== TAB 4: BORDRO ANALİZ ===================== -->
+    <section id="tab-analyze" class="p-6 max-w-5xl mx-auto hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Sol: Yükleme -->
+            <div class="lg:col-span-4 space-y-5 anim-in">
+                <div class="card-accent rounded-2xl p-6 glow-lime">
+                    <h2 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass-chart text-lime-400 text-xs"></i>Bordro Analizi
+                    </h2>
+                    <p class="text-xs text-ash-500 mb-4">PDF bordronuzu yükleyin. Sistem otomatik olarak okuyacak,
+                        doğrulayacak ve <strong class="text-lime-400">sade Türkçe</strong> ile açıklayacaktır.</p>
+
+                    <!-- Yükleme Alanı -->
+                    <div id="uploadArea" onclick="openPdfDialog()"
+                        class="border-2 border-dashed border-dark-500 rounded-xl p-8 text-center cursor-pointer hover:border-lime-500/40 transition-colors group">
+                        <div
+                            class="w-14 h-14 rounded-2xl bg-dark-700 flex items-center justify-center mx-auto mb-3 group-hover:bg-lime-500/10 transition-colors">
+                            <i
+                                class="fa-solid fa-file-pdf text-2xl text-ash-500 group-hover:text-lime-400 transition-colors"></i>
+                        </div>
+                        <p class="text-sm text-ash-400 font-medium">Bordro PDF'ini Seçin</p>
+                        <p class="text-[10px] text-ash-600 mt-1">Tıklayarak dosya seçme diyalogunu açın</p>
+                    </div>
+
+                    <div id="selectedFile" class="hidden mt-3 p-3 bg-dark-900 rounded-lg flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-lime-400"></i>
+                        <span id="selectedFileName" class="text-xs text-ash-400 flex-grow truncate"></span>
+                        <button onclick="clearFile()" class="text-ash-600 hover:text-red-400 text-xs"><i
+                                class="fa-solid fa-xmark"></i></button>
+                    </div>
+
+                    <button id="analyzeBtn" onclick="doAnalyze()"
+                        class="btn-main w-full py-3 rounded-xl text-sm mt-4 shadow-lg cursor-pointer disabled:opacity-50"
+                        disabled>
+                        <i class="fa-solid fa-microscope mr-2"></i>ANALİZ ET
+                    </button>
+
+                    <!-- Ayırıcı -->
+                    <div class="flex items-center gap-3 mt-5 mb-3">
+                        <div class="flex-grow h-px bg-dark-600"></div>
+                        <span class="text-[10px] text-ash-600 uppercase tracking-widest">veya</span>
+                        <div class="flex-grow h-px bg-dark-600"></div>
+                    </div>
+
+                    <!-- Manuel Giriş -->
+                    <details id="manualEntrySection">
+                        <summary
+                            class="text-xs font-semibold text-ash-400 cursor-pointer hover:text-lime-400 transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-keyboard text-xs"></i>Manuel Değer Girişi
+                        </summary>
+                        <div class="mt-3 space-y-2">
+                            <p class="text-[10px] text-ash-600 mb-2">PDF okunamadıysa bordronuzdaki değerleri aşağıya
+                                girin. Yalnızca doldurduğunuz alanlar yorumlanacaktır.</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[10px] text-ash-500 block mb-0.5">Brüt Ücret</label>
+                                    <input type="number" step="0.01" id="m_gross" class="param-input"
+                                        placeholder="0.00">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-ash-500 block mb-0.5">Net Ücret</label>
+                                    <input type="number" step="0.01" id="m_net" class="param-input" placeholder="0.00">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-ash-500 block mb-0.5">SGK Primi</label>
+                                    <input type="number" step="0.01" id="m_sgk" class="param-input" placeholder="0.00">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-ash-500 block mb-0.5">İşsizlik Sig.</label>
+                                    <input type="number" step="0.01" id="m_unemp" class="param-input"
+                                        placeholder="0.00">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-ash-500 block mb-0.5">Gelir Vergisi</label>
+                                    <input type="number" step="0.01" id="m_gv" class="param-input" placeholder="0.00">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-ash-500 block mb-0.5">Damga Vergisi</label>
+                                    <input type="number" step="0.01" id="m_dv" class="param-input" placeholder="0.00">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-ash-500 block mb-0.5">SGK Matrahı</label>
+                                    <input type="number" step="0.01" id="m_sgk_base" class="param-input"
+                                        placeholder="0.00">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] text-ash-500 block mb-0.5">Küm. GV Matrahı</label>
+                                    <input type="number" step="0.01" id="m_cum" class="param-input" placeholder="0.00">
+                                </div>
+                            </div>
+                            <button onclick="doManualAnalyze()"
+                                class="btn-secondary w-full py-2 rounded-lg text-xs mt-2 cursor-pointer">
+                                <i class="fa-solid fa-comment-dots mr-1.5"></i>Manuel Değerleri Yorumla
+                            </button>
+                        </div>
+                    </details>
+                </div>
+
+                <div class="card rounded-xl p-4 text-xs text-ash-500 flex items-start gap-2">
+                    <i class="fa-solid fa-shield-halved text-lime-500 mt-0.5"></i>
+                    <p>Bordronuz yalnızca bilgisayarınızda işlenir. Hiçbir veri dışarı gönderilmez.</p>
+                </div>
+            </div>
+
+            <!-- Sağ: Analiz Sonuçları -->
+            <div class="lg:col-span-8 space-y-5" id="analyzeResults" style="display:none;">
+
+                <!-- ⚠️ SORUMLULUK REDDİ BANNER'I -->
+                <div
+                    class="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/[0.07] to-orange-500/[0.04] p-4 anim-in">
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i class="fa-solid fa-scale-balanced text-amber-400 text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-amber-300 mb-1">
+                                <i class="fa-solid fa-circle-exclamation mr-1"></i>Yalnızca Bilgilendirme Amaçlıdır
+                            </p>
+                            <p class="text-[11px] text-amber-200/70 leading-relaxed">
+                                Bu analiz otomatik olarak üretilmiş olup <strong class="text-amber-200">hukuki veya mali
+                                    danışmanlık niteliği taşımaz</strong>.
+                                Bordronuzla ilgili kesin bilgi için lütfen şirketinizin <strong
+                                    class="text-amber-200">İnsan Kaynakları / Muhasebe birimi</strong>ne danışınız.
+                                Hesaplamalarda yuvarlamalar veya özel durumlardan kaynaklanan farklılıklar olabilir.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dosya Bilgisi -->
+                <div class="card p-4 flex items-center gap-3 anim-in">
+                    <div class="w-10 h-10 rounded-lg bg-lime-500/10 flex items-center justify-center">
+                        <i class="fa-solid fa-file-circle-check text-lime-400"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <p class="text-sm font-semibold text-white" id="az_filename"></p>
+                        <p class="text-[10px] text-ash-500" id="az_period"></p>
+                    </div>
+                    <span class="badge-lime">Analiz Tamamlandı</span>
+                </div>
+
+                <!-- Çıkarılan Değerler -->
+                <div class="card p-5 anim-in">
+                    <h3 class="text-sm font-bold text-white mb-3"><i
+                            class="fa-solid fa-table-list text-lime-400 text-xs mr-2"></i>Bordroda Tespit Edilen
+                        Değerler</h3>
+                    <div id="az_fields" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+                </div>
+
+                <!-- Açıklamalar -->
+                <div class="card p-5 anim-in" id="az_explanations_card">
+                    <h3 class="text-sm font-bold text-white mb-3"><i
+                            class="fa-solid fa-comment-dots text-lime-400 text-xs mr-2"></i>Bordronun Sade Türkçe
+                        Açıklaması</h3>
+                    <div id="az_explanations" class="space-y-2"></div>
+                </div>
+
+                <!-- Bulgular (✅) -->
+                <div class="card p-5 anim-in" id="az_findings_card">
+                    <h3 class="text-sm font-bold text-white mb-3"><i
+                            class="fa-solid fa-clipboard-check text-lime-400 text-xs mr-2"></i>Doğrulama Bulguları</h3>
+                    <div id="az_findings" class="space-y-2"></div>
+                </div>
+
+                <!-- Uyarılar (⚠️) -->
+                <div class="card p-5 border-l-4 border-yellow-500 anim-in" id="az_warnings_card">
+                    <h3 class="text-sm font-bold text-white mb-3"><i
+                            class="fa-solid fa-triangle-exclamation text-yellow-400 text-xs mr-2"></i>Uyarılar &
+                        Farklılıklar</h3>
+                    <div id="az_warnings" class="space-y-2"></div>
+                </div>
+
+                <!-- Jenerik Etiket-Değer (Fallback) -->
+                <div class="card p-5 anim-in" id="az_generic_card" style="display:none;">
+                    <h3 class="text-sm font-bold text-white mb-3"><i
+                            class="fa-solid fa-list-check text-amber-400 text-xs mr-2"></i>Metinden Çıkarılan Tüm
+                        Etiket-Değer Çiftleri</h3>
+                    <p class="text-xs text-ash-500 mb-3">Bordro formatı tam tanınamadığı için metindeki tüm sayısal
+                        değerler aşağıda listelenmektedir:</p>
+                    <div id="az_generic" class="grid grid-cols-2 gap-2"></div>
+                </div>
+
+                <!-- Ham Metin Önizleme -->
+                <details class="card p-5 anim-in">
+                    <summary
+                        class="text-xs font-semibold text-ash-500 cursor-pointer hover:text-lime-400 transition-colors">
+                        <i class="fa-solid fa-code text-xs mr-2"></i>PDF'den Çıkarılan Ham Metin (Önizleme)
+                    </summary>
+                    <pre id="az_rawtext"
+                        class="mt-3 text-[11px] text-ash-600 bg-dark-900 rounded-lg p-4 overflow-x-auto max-h-64 overflow-y-auto whitespace-pre-wrap font-mono"></pre>
+                </details>
+            </div>
+
+            <!-- Boş Durum -->
+            <div class="lg:col-span-8 flex items-center justify-center p-16" id="analyzeEmpty">
+                <div class="text-center space-y-3">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-dark-700 flex items-center justify-center mx-auto border border-dark-600">
+                        <i class="fa-solid fa-file-pdf text-2xl text-ash-600"></i>
+                    </div>
+                    <h3 class="text-base font-medium text-ash-500">Bordronuzu yükleyin</h3>
+                    <p class="text-sm text-ash-600">Sol panelden PDF dosyanızı seçip "Analiz Et" butonuna basın.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== TAB 5: GELİŞTİRİCİ ===================== -->
+    <section id="tab-dev" class="hidden p-6 max-w-4xl mx-auto">
+        <div class="space-y-6">
+
+            <!-- Profil Kartı -->
+            <div
+                class="relative overflow-hidden rounded-2xl border border-dark-600 bg-gradient-to-br from-dark-800 via-dark-800 to-lime-500/[0.03]">
+                <!-- Dekoratif Üst Şerit -->
+                <div class="h-28 bg-gradient-to-r from-lime-500/20 via-emerald-500/10 to-cyan-500/10 relative">
+                    <div
+                        class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22%2384cc16%22%20fill-opacity%3D%220.06%22%3E%3Cpath%20d%3D%22M0%2020L20%200L40%2020L20%2040z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50">
+                    </div>
+                </div>
+
+                <div class="px-8 pb-8 -mt-14">
+                    <!-- Avatar -->
+                    <div class="flex items-end gap-5 mb-6">
+                        <div
+                            class="w-24 h-24 rounded-2xl bg-gradient-to-br from-lime-400 to-emerald-500 flex items-center justify-center text-3xl font-black text-dark-900 shadow-xl border-4 border-dark-800 flex-shrink-0">
+                            HD
+                        </div>
+                        <div class="pb-1">
+                            <h2 class="text-xl font-bold text-white">Hikmet Durna</h2>
+                            <p class="text-sm text-ash-400">Yazılım Geliştirici & E-Ticaret Uzmanı</p>
+                        </div>
+                    </div>
+
+                    <!-- Sosyal Linkler -->
+                    <div class="flex gap-3 mb-6">
+                        <a href="#" onclick="openExternal('https://www.linkedin.com/in/hikmetdurna/'); return false;"
+                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0A66C2]/10 border border-[#0A66C2]/20 hover:bg-[#0A66C2]/20 transition-all group cursor-pointer">
+                            <i
+                                class="fa-brands fa-linkedin-in text-[#0A66C2] group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs text-[#0A66C2] font-medium">LinkedIn</span>
+                        </a>
+                        <a href="#" onclick="openExternal('https://www.instagram.com/hikmetdurna/'); return false;"
+                            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#833AB4]/10 via-[#FD1D1D]/10 to-[#F77737]/10 border border-[#E1306C]/20 hover:from-[#833AB4]/20 hover:via-[#FD1D1D]/20 hover:to-[#F77737]/20 transition-all group cursor-pointer">
+                            <i
+                                class="fa-brands fa-instagram text-[#E1306C] group-hover:scale-110 transition-transform"></i>
+                            <span class="text-xs text-[#E1306C] font-medium">Instagram</span>
+                        </a>
+                    </div>
+
+                    <!-- Hakkında -->
+                    <div class="space-y-4">
+                        <div class="card p-5">
+                            <h3
+                                class="text-xs font-bold text-ash-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-user text-lime-400 text-[10px]"></i>Hakkında
+                            </h3>
+                            <p class="text-sm text-ash-300 leading-relaxed">
+                                Bu uygulama, çalışanların bordro hesaplamalarını kolayca anlayabilmesi için
+                                geliştirilmiştir. Türk iş hukuku ve SGK mevzuatına göre brüt-net, net-brüt
+                                dönüşümleri, vergi dilimi hesaplamaları ve bordro analizi yapabilir.
+                            </p>
+                        </div>
+
+                        <!-- Proje Bilgileri -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="card p-5">
+                                <h3
+                                    class="text-xs font-bold text-ash-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-rocket text-lime-400 text-[10px]"></i>Proje
+                                </h3>
+                                <div class="space-y-2.5">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-[11px] text-ash-500">Proje Adı</span>
+                                        <span class="text-xs text-white font-medium">Bordro Motoru</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-[11px] text-ash-500">Sürüm</span>
+                                        <span class="text-xs text-lime-400 font-mono">v1.0.0 MVP</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-[11px] text-ash-500">Lisans</span>
+                                        <span class="text-xs text-white">Kişisel Kullanım</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-[11px] text-ash-500">Yıl</span>
+                                        <span class="text-xs text-white">2026</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card p-5">
+                                <h3
+                                    class="text-xs font-bold text-ash-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                    <i class="fa-solid fa-layer-group text-lime-400 text-[10px]"></i>Teknolojiler
+                                </h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <span
+                                        class="px-2.5 py-1 rounded-lg bg-[#3776AB]/10 border border-[#3776AB]/20 text-[10px] text-[#3776AB] font-medium">
+                                        <i class="fa-brands fa-python mr-1"></i>Python
+                                    </span>
+                                    <span
+                                        class="px-2.5 py-1 rounded-lg bg-[#F7DF1E]/10 border border-[#F7DF1E]/20 text-[10px] text-[#F7DF1E] font-medium">
+                                        <i class="fa-brands fa-js mr-1"></i>JavaScript
+                                    </span>
+                                    <span
+                                        class="px-2.5 py-1 rounded-lg bg-[#E34F26]/10 border border-[#E34F26]/20 text-[10px] text-[#E34F26] font-medium">
+                                        <i class="fa-brands fa-html5 mr-1"></i>HTML/CSS
+                                    </span>
+                                    <span
+                                        class="px-2.5 py-1 rounded-lg bg-lime-500/10 border border-lime-500/20 text-[10px] text-lime-400 font-medium">
+                                        <i class="fa-solid fa-window-maximize mr-1"></i>PyWebView
+                                    </span>
+                                    <span
+                                        class="px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/20 text-[10px] text-sky-400 font-medium">
+                                        <i class="fa-solid fa-wind mr-1"></i>Tailwind CSS
+                                    </span>
+                                    <span
+                                        class="px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/20 text-[10px] text-orange-400 font-medium">
+                                        <i class="fa-solid fa-chart-pie mr-1"></i>Chart.js
+                                    </span>
+                                    <span
+                                        class="px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] text-red-400 font-medium">
+                                        <i class="fa-solid fa-file-pdf mr-1"></i>pdfplumber
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Özellikler -->
+                        <div class="card p-5">
+                            <h3
+                                class="text-xs font-bold text-ash-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-star text-lime-400 text-[10px]"></i>Özellikler
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="flex items-start gap-2.5">
+                                    <div
+                                        class="w-6 h-6 rounded-md bg-lime-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-calculator text-lime-400 text-[9px]"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-white font-medium">Brüt ↔ Net Dönüşüm</p>
+                                        <p class="text-[10px] text-ash-500">Türk mevzuatına uygun hesaplama</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-2.5">
+                                    <div
+                                        class="w-6 h-6 rounded-md bg-lime-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-table text-lime-400 text-[9px]"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-white font-medium">12 Aylık Projeksiyon</p>
+                                        <p class="text-[10px] text-ash-500">Vergi dilimi geçişleri ve grafikler</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-2.5">
+                                    <div
+                                        class="w-6 h-6 rounded-md bg-lime-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-magnifying-glass-chart text-lime-400 text-[9px]"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-white font-medium">Bordro PDF Analizi</p>
+                                        <p class="text-[10px] text-ash-500">Otomatik okuma, doğrulama ve yorum</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-2.5">
+                                    <div
+                                        class="w-6 h-6 rounded-md bg-lime-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <i class="fa-solid fa-shield-halved text-lime-400 text-[9px]"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-white font-medium">Tamamen Yerel</p>
+                                        <p class="text-[10px] text-ash-500">Hiçbir veri dışarı gönderilmez</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-[10px] text-ash-600 border-t border-dark-700 mt-6">
+        Bordro Motoru MVP &copy; 2026 &middot; Hikmet Durna &middot; Hesaplamalara yardımcı araçtır; resmi belge
+        niteliği taşımaz.
+    </footer>
+
+    <script>
+        // ==================== GLOBAL ====================
+        let currentMode = 'gross_to_net';
+        let salaryChart = null;
+        const MONTH_NAMES = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+
+        // Dış URL'yi varsayılan tarayıcıda aç
+        async function openExternal(url) {
+            try {
+                await window.pywebview.api.open_external_url(url);
+            } catch (e) {
+                window.open(url, '_blank');
+            }
+        }
+
+        // ==================== TAB SWITCHING ====================
+        function switchTab(tab) {
+            document.querySelectorAll('[id^="tab-"]').forEach(s => s.classList.add('hidden'));
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[data-tab="${tab}"]`).classList.add('active');
+
+            if (tab === 'params') loadParamsToForm();
+        }
+
+        // ==================== MOD ====================
+        function setMode(btn) {
+            document.querySelectorAll('.mode-btn').forEach(b => {
+                b.className = 'mode-btn flex-1 py-2.5 rounded-lg text-sm font-semibold text-center text-ash-500';
+            });
+            btn.className = 'mode-btn flex-1 py-2.5 rounded-lg text-sm font-semibold text-center bg-gradient-to-r from-lime-500 to-lime-600 text-dark-900';
+            currentMode = btn.dataset.mode;
+            document.getElementById('amountLabel').textContent = currentMode === 'gross_to_net' ? 'Brüt Tutar (TL)' : 'Hedef Net Tutar (TL)';
+        }
+
+        // ==================== FORMATTING ====================
+        function fmt(val) {
+            if (!val) return '0,00 ₺';
+            return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(val)) + ' ₺';
+        }
+        function fmtShort(val) {
+            if (!val) return '0,00';
+            return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(parseFloat(val));
+        }
+
+        // ==================== HESAPLA (Tekli) ====================
+        async function doCalculate() {
+            const btn = document.getElementById('calcBtn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Hesaplanıyor...';
+            btn.disabled = true;
+
+            const amount = document.getElementById('amount').value;
+            const cumBase = document.getElementById('cum_base').value || '0';
+            const empType = document.getElementById('employee_type').value;
+
+            if (!amount || parseFloat(amount) <= 0) { alert('Lütfen geçerli bir tutar girin.'); btn.innerHTML = orig; btn.disabled = false; return; }
+
+            try {
+                const raw = await window.pywebview.api.calculate(currentMode, amount, cumBase, empType);
+                const res = JSON.parse(raw);
+                if (res.success) {
+                    showResults(res.data);
+                    document.getElementById('resultPanel').style.display = '';
+                    document.getElementById('emptyState').style.display = 'none';
+                } else { alert('Hata: ' + res.error); }
+            } catch (e) { alert('Hata: ' + e.message); }
+            finally { btn.innerHTML = orig; btn.disabled = false; }
+        }
+
+        function showResults(d) {
+            const sgk = parseFloat(d.sgk_employee) + parseFloat(d.unemployment_employee);
+            const gv = parseFloat(d.income_tax_net);
+            const dv = parseFloat(d.stamp_tax_net);
+            const total = sgk + gv + dv;
+            const gross = parseFloat(d.gross);
+            const rate = gross > 0 ? (total / gross * 100).toFixed(1) : 0;
+
+            document.getElementById('res_net').textContent = fmt(d.net);
+            document.getElementById('res_gross').textContent = fmt(d.gross);
+            document.getElementById('res_deduction').textContent = fmt(total);
+            document.getElementById('res_deduction_rate').textContent = '%' + rate + ' Kesinti';
+
+            // Detay Tablosu
+            const rows = [
+                { label: 'Brüt Ücret', val: fmt(d.gross), cls: 'text-white font-semibold' },
+                { label: 'SGK Matrahı (PEK)', val: fmt(d.pek), cls: 'text-ash-400 font-mono' },
+                { label: 'SGK İşçi Payı', val: fmt(d.sgk_employee), cls: 'text-red-400 font-semibold', row: 'deduction', icon: 'minus' },
+                { label: 'İşsizlik İşçi Payı', val: fmt(d.unemployment_employee), cls: 'text-red-400 font-semibold', row: 'deduction', icon: 'minus' },
+                { label: 'GV Matrahı (Aylık)', val: fmt(d.income_tax_base_month), cls: 'text-ash-400 font-mono' },
+                { label: 'Kümülatif Matrah', val: fmt(d.cum_tax_base_new), cls: 'text-ash-600 italic' },
+                { label: 'GV (Hesaplanan)', val: fmt(d.income_tax_gross), cls: 'text-orange-400 font-mono' },
+                { label: 'GV İstisnası', val: fmt(d.income_tax_exemption), cls: 'text-lime-400 font-semibold', row: 'exemption', icon: 'leaf' },
+                { label: 'Ödenecek GV', val: fmt(d.income_tax_net), cls: 'text-red-400 font-bold', row: 'deduction', icon: 'minus' },
+                { label: 'DV (Hesaplanan)', val: fmt(d.stamp_tax_gross), cls: 'text-orange-400 font-mono' },
+                { label: 'DV İstisnası', val: fmt(d.stamp_tax_exemption), cls: 'text-lime-400 font-semibold', row: 'exemption', icon: 'leaf' },
+                { label: 'Ödenecek DV', val: fmt(d.stamp_tax_net), cls: 'text-red-400 font-bold', row: 'deduction', icon: 'minus' },
+            ];
+            let html = '';
+            rows.forEach(r => {
+                const bg = r.row === 'deduction' ? 'bg-red-500/[0.03]' : r.row === 'exemption' ? 'bg-lime-500/[0.03]' : '';
+                const border = r.row === 'deduction' ? 'border-l-2 border-red-500 pl-2' : r.row === 'exemption' ? 'pl-2' : '';
+                const icon = r.icon === 'leaf' ? '<i class="fa-solid fa-leaf text-lime-500 text-[9px] mr-1"></i>' : r.icon === 'minus' ? '' : '';
+                html += `<div class="flex justify-between py-2 px-2 rounded ${bg} hover:bg-white/[0.02] transition-colors"><span class="text-ash-500 ${border}">${icon}${r.label}</span><span class="${r.cls}">${r.val}</span></div>`;
+            });
+            document.getElementById('detailTable').innerHTML = html;
+
+            // Chart
+            updateChart(parseFloat(d.net), sgk, gv, dv);
+        }
+
+        function updateChart(net, sgk, gv, dv) {
+            const ctx = document.getElementById('salaryChart').getContext('2d');
+            if (salaryChart) salaryChart.destroy();
+            salaryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Net Maaş', 'SGK & İşsizlik', 'Gelir Vergisi', 'Damga Vergisi'],
+                    datasets: [{ data: [net, sgk, gv, dv], backgroundColor: ['#a3e635', '#ef4444', '#f97316', '#6366f1'], borderWidth: 0, hoverOffset: 6 }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#6b7280', usePointStyle: true, pointStyleWidth: 8, font: { family: "'Inter'", size: 11 } } } },
+                    cutout: '72%',
+                }
+            });
+        }
+
+        // ==================== 12 AYLIK ====================
+        async function doAnnualCalc() {
+            const gross = document.getElementById('annualGross').value;
+            const empType = document.getElementById('annualType').value;
+            if (!gross || parseFloat(gross) <= 0) { alert('Brüt tutar girin.'); return; }
+
+            try {
+                const raw = await window.pywebview.api.calculate_annual(gross, empType);
+                const res = JSON.parse(raw);
+                if (!res.success) { alert('Hata: ' + res.error); return; }
+
+                const data = res.data;
+                let html = '';
+                let totals = { gross: 0, sgk: 0, unemp: 0, gvBase: 0, gvGross: 0, gvExempt: 0, gvNet: 0, dvNet: 0, net: 0 };
+
+                data.forEach(m => {
+                    const g = parseFloat(m.gross), s = parseFloat(m.sgk_employee), u = parseFloat(m.unemployment_employee);
+                    const gb = parseFloat(m.income_tax_base_month), gg = parseFloat(m.income_tax_gross), ge = parseFloat(m.income_tax_exemption);
+                    const gn = parseFloat(m.income_tax_net), dn = parseFloat(m.stamp_tax_net), n = parseFloat(m.net);
+
+                    totals.gross += g; totals.sgk += s; totals.unemp += u; totals.gvBase += gb;
+                    totals.gvGross += gg; totals.gvExempt += ge; totals.gvNet += gn; totals.dvNet += dn; totals.net += n;
+
+                    html += `<tr>
+                    <td class="py-2 px-3 text-ash-400 font-medium">${MONTH_NAMES[m.month - 1]}</td>
+                    <td class="py-2 px-3 text-right text-white">${fmtShort(m.gross)}</td>
+                    <td class="py-2 px-3 text-right text-red-400">${fmtShort(m.sgk_employee)}</td>
+                    <td class="py-2 px-3 text-right text-red-400">${fmtShort(m.unemployment_employee)}</td>
+                    <td class="py-2 px-3 text-right text-ash-400">${fmtShort(m.income_tax_base_month)}</td>
+                    <td class="py-2 px-3 text-right text-ash-500 italic">${fmtShort(m.cum_tax_base_new)}</td>
+                    <td class="py-2 px-3 text-right text-orange-400">${fmtShort(m.income_tax_gross)}</td>
+                    <td class="py-2 px-3 text-right text-lime-400">${fmtShort(m.income_tax_exemption)}</td>
+                    <td class="py-2 px-3 text-right text-red-400 font-semibold">${fmtShort(m.income_tax_net)}</td>
+                    <td class="py-2 px-3 text-right text-red-400">${fmtShort(m.stamp_tax_net)}</td>
+                    <td class="py-2 px-3 text-right text-lime-400 font-bold">${fmtShort(m.net)}</td>
+                </tr>`;
+                });
+                document.getElementById('annualBody').innerHTML = html;
+
+                document.getElementById('annualFoot').innerHTML = `<tr class="bg-dark-700">
+                <td class="py-3 px-3 text-lime-400 font-bold">TOPLAM</td>
+                <td class="py-3 px-3 text-right">${fmtShort(totals.gross)}</td>
+                <td class="py-3 px-3 text-right text-red-400">${fmtShort(totals.sgk)}</td>
+                <td class="py-3 px-3 text-right text-red-400">${fmtShort(totals.unemp)}</td>
+                <td class="py-3 px-3 text-right">${fmtShort(totals.gvBase)}</td>
+                <td class="py-3 px-3 text-right text-ash-500">—</td>
+                <td class="py-3 px-3 text-right text-orange-400">${fmtShort(totals.gvGross)}</td>
+                <td class="py-3 px-3 text-right text-lime-400">${fmtShort(totals.gvExempt)}</td>
+                <td class="py-3 px-3 text-right text-red-400">${fmtShort(totals.gvNet)}</td>
+                <td class="py-3 px-3 text-right text-red-400">${fmtShort(totals.dvNet)}</td>
+                <td class="py-3 px-3 text-right text-lime-400 font-bold">${fmtShort(totals.net)}</td>
+            </tr>`;
+            } catch (e) { alert('Hata: ' + e.message); }
+        }
+
+        // ==================== PARAMETRELER ====================
+        async function loadParamsToForm() {
+            try {
+                const raw = await window.pywebview.api.get_params_info();
+                const p = JSON.parse(raw);
+                if (p.error) { alert(p.error); return; }
+
+                document.getElementById('p_min_wage').value = p.min_wage_gross;
+                document.getElementById('p_sgk_ceiling').value = p.sgk_ceiling_monthly;
+                document.getElementById('p_stamp_rate').value = p.stamp_rate;
+                document.getElementById('p_year').value = p.year;
+                document.getElementById('p_4a_sgk').value = p.rates.normal_4a.sgk_employee;
+                document.getElementById('p_4a_unemp').value = p.rates.normal_4a.unemployment_employee;
+                document.getElementById('p_sgdp').value = p.rates.emekli_sgdp.sgdp_employee;
+                document.getElementById('p_sgdp_unemp').value = p.rates.emekli_sgdp.unemployment_employee;
+
+                // Tarife satırları
+                let tariffHtml = '';
+                p.income_tax_tariff.forEach((b, i) => {
+                    const limitVal = b.up_to === null ? '' : b.up_to;
+                    const isLast = b.up_to === null;
+                    tariffHtml += `<div class="flex items-center gap-3">
+                    <span class="text-[11px] text-ash-500 w-16">${i + 1}. Dilim</span>
+                    <input type="number" class="param-input w-36 tariff-limit" value="${limitVal}" placeholder="${isLast ? '∞ (Sınırsız)' : ''}" ${isLast ? 'disabled' : ''}>
+                    <span class="text-[11px] text-ash-600">TL'ye kadar →</span>
+                    <input type="number" step="0.01" class="param-input w-20 tariff-rate" value="${(parseFloat(b.rate) * 100).toFixed(0)}">
+                    <span class="text-[11px] text-ash-600">%</span>
+                </div>`;
+                });
+                document.getElementById('tariffRows').innerHTML = tariffHtml;
+            } catch (e) { console.error(e); }
+        }
+
+        async function saveParams() {
+            try {
+                const limits = document.querySelectorAll('.tariff-limit');
+                const rates = document.querySelectorAll('.tariff-rate');
+                const tariff = [];
+                limits.forEach((el, i) => {
+                    tariff.push({
+                        up_to: el.disabled ? null : parseFloat(el.value),
+                        rate: parseFloat(rates[i].value) / 100
+                    });
+                });
+
+                const newParams = {
+                    year: parseInt(document.getElementById('p_year').value),
+                    min_wage_gross: parseFloat(document.getElementById('p_min_wage').value),
+                    sgk_ceiling_monthly: parseFloat(document.getElementById('p_sgk_ceiling').value),
+                    stamp_rate: parseFloat(document.getElementById('p_stamp_rate').value),
+                    rates: {
+                        normal_4a: {
+                            sgk_employee: parseFloat(document.getElementById('p_4a_sgk').value),
+                            unemployment_employee: parseFloat(document.getElementById('p_4a_unemp').value)
+                        },
+                        emekli_sgdp: {
+                            sgdp_employee: parseFloat(document.getElementById('p_sgdp').value),
+                            unemployment_employee: parseFloat(document.getElementById('p_sgdp_unemp').value)
+                        }
+                    },
+                    income_tax_tariff: tariff,
+                    notes: "Kullanıcı tarafından güncellendi."
+                };
+
+                const raw = await window.pywebview.api.save_params(JSON.stringify(newParams));
+                const res = JSON.parse(raw);
+                if (res.success) {
+                    const st = document.getElementById('saveStatus');
+                    st.classList.remove('hidden');
+                    setTimeout(() => st.classList.add('hidden'), 3000);
+                } else { alert('Kayıt hatası: ' + res.error); }
+            } catch (e) { alert('Hata: ' + e.message); }
+        }
+
+        // ==================== INIT ====================
+        window.addEventListener('pywebviewready', async () => {
+            try {
+                const raw = await window.pywebview.api.get_params_info();
+                const p = JSON.parse(raw);
+                if (!p.error) {
+                    document.getElementById('headerInfo').textContent = 'Asgari: ₺' + parseFloat(p.min_wage_gross).toLocaleString('tr-TR');
+                }
+            } catch (e) { }
+        });
+
+        document.getElementById('amount').addEventListener('keydown', e => { if (e.key === 'Enter') doCalculate(); });
+        document.getElementById('annualGross').addEventListener('keydown', e => { if (e.key === 'Enter') doAnnualCalc(); });
+
+        // ==================== BORDRO ANALİZ ====================
+        let selectedPdfPath = null;
+
+        const FIELD_LABELS = {
+            gross: 'Toplam Brüt', net: 'Net Kazanç', sgk_employee: 'SGK Primi',
+            unemployment_employee: 'İşsizlik Sig.', income_tax: 'Gelir Vergisi',
+            stamp_tax: 'Damga Vergisi', sgk_base: 'SGK Matrahı',
+            income_tax_base: 'GV Matrahı', cum_tax_base: 'Küm. Matrah',
+            income_tax_exemption: 'GV İstisnası', stamp_tax_exemption: 'DV İstisnası',
+            net_paid: 'Net Ödenen', bes_amount: 'BES Kesintisi',
+            sgk_days: 'SGK Gün', deductions_misc: 'Muhtelif Kes.',
+            child_benefit: 'Çocuk Parası', fuel_allowance: 'Yakacak Yrd.',
+            unit_wage: 'Birim Ücret'
+        };
+
+        // **bold** markdown → <strong> HTML
+        function md(text) {
+            return text.replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>');
+        }
+
+        async function openPdfDialog() {
+            try {
+                const raw = await window.pywebview.api.open_pdf_dialog();
+                const res = JSON.parse(raw);
+                if (res.success) {
+                    selectedPdfPath = res.path;
+                    const name = res.path.split('\\').pop().split('/').pop();
+                    document.getElementById('selectedFileName').textContent = name;
+                    document.getElementById('selectedFile').classList.remove('hidden');
+                    document.getElementById('analyzeBtn').disabled = false;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function clearFile() {
+            selectedPdfPath = null;
+            document.getElementById('selectedFile').classList.add('hidden');
+            document.getElementById('analyzeBtn').disabled = true;
+        }
+
+        async function doAnalyze() {
+            if (!selectedPdfPath) return;
+            const btn = document.getElementById('analyzeBtn');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Analiz ediliyor...';
+            btn.disabled = true;
+
+            try {
+                const raw = await window.pywebview.api.analyze_pdf(selectedPdfPath);
+                const res = JSON.parse(raw);
+                if (res.success) {
+                    showAnalysis(res.data);
+                    document.getElementById('analyzeResults').style.display = '';
+                    document.getElementById('analyzeEmpty').style.display = 'none';
+                } else { alert('Analiz hatası: ' + res.error); }
+            } catch (e) { alert('Hata: ' + e.message); }
+            finally { btn.innerHTML = orig; btn.disabled = false; }
+        }
+
+        function showAnalysis(data) {
+            // Dosya bilgisi
+            document.getElementById('az_filename').textContent = data.filename || 'Bordro PDF';
+            const monthName = data.detected_month ? MONTH_NAMES[data.detected_month - 1] : '?';
+            const year = data.detected_year || '?';
+            document.getElementById('az_period').textContent = `Tespit Edilen Dönem: ${monthName} ${year}`;
+
+            // Çıkarılan alanlar
+            let fieldsHtml = '';
+            const fields = data.parsed_fields || {};
+            for (const [key, val] of Object.entries(fields)) {
+                const label = FIELD_LABELS[key] || key;
+                fieldsHtml += `<div class="bg-dark-900 rounded-lg p-3 border border-dark-600">
+                    <p class="text-[10px] text-ash-500 uppercase tracking-wider">${label}</p>
+                    <p class="text-sm font-bold text-white mt-0.5">${fmt(val)}</p>
+                </div>`;
+            }
+            if (!fieldsHtml) fieldsHtml = '<p class="text-xs text-ash-600 col-span-3">Bordroda tanınabilir alan bulunamadı.</p>';
+            document.getElementById('az_fields').innerHTML = fieldsHtml;
+
+            // Açıklamalar
+            const expl = data.explanations || [];
+            document.getElementById('az_explanations').innerHTML = expl.map(e => {
+                const indent = e.startsWith('   →') || e.startsWith('   →');
+                const cls = indent ? 'text-xs text-ash-400 py-1 px-4 ml-4 border-l-2 border-dark-500' : 'text-sm text-ash-300 py-2 px-3 rounded-lg bg-dark-900/50';
+                return `<div class="${cls}">${md(e)}</div>`;
+            }).join('');
+            document.getElementById('az_explanations_card').style.display = expl.length ? '' : 'none';
+
+            // Bulgular
+            const finds = data.findings || [];
+            document.getElementById('az_findings').innerHTML = finds.map(f =>
+                `<div class="text-sm text-lime-400 py-1.5 px-3 rounded-lg bg-lime-500/[0.05]">${md(f)}</div>`
+            ).join('');
+            document.getElementById('az_findings_card').style.display = finds.length ? '' : 'none';
+
+            // Uyarılar
+            const warns = data.warnings || [];
+            document.getElementById('az_warnings').innerHTML = warns.map(w =>
+                `<div class="text-sm text-yellow-300 py-1.5 px-3 rounded-lg bg-yellow-500/[0.05]">${md(w)}</div>`
+            ).join('');
+            document.getElementById('az_warnings_card').style.display = warns.length ? '' : 'none';
+
+            // Jenerik çiftler (fallback)
+            const generic = data.generic_pairs || [];
+            if (generic.length > 0) {
+                document.getElementById('az_generic').innerHTML = generic.map(g =>
+                    `<div class="bg-dark-900 rounded-lg p-2 border border-dark-600 flex justify-between items-center">
+                        <span class="text-[10px] text-ash-500 truncate mr-2">${g.label}</span>
+                        <span class="text-xs font-bold text-amber-300 whitespace-nowrap">${fmt(g.value)}</span>
+                    </div>`
+                ).join('');
+                document.getElementById('az_generic_card').style.display = '';
+            } else {
+                document.getElementById('az_generic_card').style.display = 'none';
+            }
+
+            // Ham metin
+            const rawText = data.raw_text_preview || '';
+            document.getElementById('az_rawtext').textContent = rawText || 'Metin çıkarılamadı.';
+            // Ham metin boşsa (manuel giriş) details'i gizle
+            const rawDetails = document.getElementById('az_rawtext').closest('details');
+            if (rawDetails) rawDetails.style.display = rawText ? '' : 'none';
+        }
+
+        // ==================== MANUEL ANALİZ ====================
+        async function doManualAnalyze() {
+            const fields = {
+                gross: document.getElementById('m_gross').value,
+                net: document.getElementById('m_net').value,
+                sgk: document.getElementById('m_sgk').value,
+                unemp: document.getElementById('m_unemp').value,
+                gv: document.getElementById('m_gv').value,
+                dv: document.getElementById('m_dv').value,
+                sgk_base: document.getElementById('m_sgk_base').value,
+                cum: document.getElementById('m_cum').value,
+            };
+
+            // En az bir alan dolu mu?
+            const hasValue = Object.values(fields).some(v => v && parseFloat(v) > 0);
+            if (!hasValue) {
+                alert('Lütfen en az bir alan doldurun.');
+                return;
+            }
+
+            try {
+                const raw = await window.pywebview.api.analyze_manual(JSON.stringify(fields));
+                const res = JSON.parse(raw);
+                if (res.success) {
+                    showAnalysis(res.data);
+                    document.getElementById('analyzeResults').style.display = '';
+                    document.getElementById('analyzeEmpty').style.display = 'none';
+                } else { alert('Analiz hatası: ' + res.error); }
+            } catch (e) { alert('Hata: ' + e.message); }
+        }
+    </script>
+</body>
+
+</html>
