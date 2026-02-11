@@ -216,6 +216,28 @@
             border-radius: 6px;
             font-weight: 600;
         }
+
+        /* Shine Efekti */
+        .group:hover .shine-effect {
+            animation: shine 1.5s;
+        }
+
+        @keyframes shine {
+            100% {
+                left: 125%;
+            }
+        }
+
+        /* Shine Efekti */
+        .group:hover .shine-effect {
+            animation: shine 1s ease-in-out;
+        }
+
+        @keyframes shine {
+            100% {
+                left: 125%;
+            }
+        }
     </style>
 </head>
 
@@ -758,14 +780,25 @@
 
                 <div class="px-8 pb-8 -mt-14">
                     <!-- Avatar -->
-                    <div class="flex items-end gap-5 mb-6">
+                    <div class="flex items-end gap-5 mb-6 group">
+                        <!-- Profil Resmi -->
                         <div
-                            class="w-24 h-24 rounded-2xl bg-gradient-to-br from-lime-400 to-emerald-500 flex items-center justify-center text-3xl font-black text-dark-900 shadow-xl border-4 border-dark-800 flex-shrink-0">
-                            HD
+                            class="w-24 h-24 rounded-2xl bg-dark-900 border-4 border-dark-800 shadow-xl overflow-hidden relative group-hover:scale-105 transition-transform duration-300 flex-shrink-0 cursor-pointer">
+                            <!-- Shine Işığı -->
+                            <div
+                                class="shine-effect absolute top-0 -left-[100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-[25deg] z-10 pointer-events-none">
+                            </div>
+
+                            <!-- Resim (Varsayılan veya Yüklenen) -->
+                            <img src="static/img/profile.png"
+                                onerror="this.src='https://ui-avatars.com/api/?name=Hikmet+Durna&background=0D8ABC&color=fff&size=128&bold=true'"
+                                class="w-full h-full object-cover">
                         </div>
+
                         <div class="pb-1">
-                            <h2 class="text-xl font-bold text-white">Hikmet Durna</h2>
-                            <p class="text-sm text-ash-400">Yazılım Geliştirici & E-Ticaret Uzmanı</p>
+                            <h2 class="text-xl font-bold text-white group-hover:text-lime-400 transition-colors">Hikmet
+                                Durna</h2>
+                            <p class="text-sm text-ash-400">Geliştirici</p>
                         </div>
                     </div>
 

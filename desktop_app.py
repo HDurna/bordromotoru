@@ -4,6 +4,7 @@ Tarayıcıda değil, bağımsız pencerede çalışır.
 """
 import webview
 import json
+import sys
 import os
 import webbrowser
 from decimal import Decimal
@@ -200,7 +201,14 @@ class BordroAPI:
 
 
 def get_html_path():
-    base = os.path.dirname(os.path.abspath(__file__))
+    """HTML dosyasının yolunu döndürür (PyInstaller uyumlu)."""
+    if hasattr(sys, '_MEIPASS'):
+        # PyInstaller ile paketlenmişse (temp klasöründen çalışır)
+        base = sys._MEIPASS
+    else:
+        # Normal python ile çalışıyorsa
+        base = os.path.dirname(os.path.abspath(__file__))
+    
     return os.path.join(base, "templates", "desktop.html")
 
 
