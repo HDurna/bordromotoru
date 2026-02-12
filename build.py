@@ -22,8 +22,8 @@ PyInstaller.__main__.run([
     '--add-data=static;static',
     '--add-data=data;data',
     '--add-data=core;core',
-    # İkon varsa ekle (şimdilik varsayılan)
-    # '--icon=static/icon.ico', 
+    # İkon (Otomatik oluşturulan .ico dosyası)
+    '--icon=static/img/app.ico', 
 ])
 
 print("\n✅ Derleme tamamlandı!")

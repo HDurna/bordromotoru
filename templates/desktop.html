@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bordro Motoru 2026</title>
+    <title>Bordro Motoru</title>
+    <script src="../static/js/script.js"></script>
+    <link rel="icon" type="image/png" href="dis-logo.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -244,18 +246,12 @@
 <body>
 
     <!-- Header -->
-    <header class="sticky top-0 z-50 px-6 py-3 flex items-center justify-between border-b border-dark-600"
-        style="background:rgba(17,17,19,0.92);backdrop-filter:blur(12px);">
-        <div class="flex items-center gap-3">
-            <div
-                class="w-8 h-8 rounded-lg bg-gradient-to-br from-lime-400 to-lime-600 flex items-center justify-center">
-                <i class="fa-solid fa-calculator text-dark-900 text-sm"></i>
-            </div>
-            <div>
-                <h1 class="text-base font-bold text-white tracking-tight">Bordro<span
-                        class="text-lime-400 font-light">Motoru</span></h1>
-                <p class="text-[10px] text-ash-500 -mt-0.5 font-mono">2026 • Türkiye Maaş Hesaplama</p>
-            </div>
+    <header
+        class="h-14 border-b border-dark-700 bg-dark-900/50 backdrop-blur-md px-6 flex items-center justify-between z-50 sticky top-0">
+        <div class="flex items-center">
+            <!-- Logo (Yazı yerine sadece logo) -->
+            <img src="ic-logo.png"
+                class="h-11 w-auto object-contain drop-shadow-md hover:opacity-90 transition-opacity">
         </div>
         <!-- Tabs -->
         <nav class="flex items-center gap-6 text-sm font-medium">
